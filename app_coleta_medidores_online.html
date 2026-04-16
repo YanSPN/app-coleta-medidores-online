@@ -1,0 +1,424 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.app { max-width: 420px; margin: 0 auto; padding: 16px; font-family: var(--font-sans); }
+.screen { display: none; }
+.screen.active { display: block; }
+.header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.header h2 { font-size: 16px; font-weight: 500; color: var(--color-text-primary); }
+.back-btn { background: none; border: none; cursor: pointer; padding: 4px; color: var(--color-text-secondary); font-size: 18px; line-height: 1; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+.badge-energia { background: var(--color-background-info); color: var(--color-text-info); }
+.badge-danificado { background: var(--color-background-danger); color: var(--color-text-danger); }
+.badge-ok { background: var(--color-background-success); color: var(--color-text-success); }
+.badge-sync { background: var(--color-background-success); color: var(--color-text-success); font-size: 10px; padding: 2px 7px; }
+.badge-saving { background: var(--color-background-warning); color: var(--color-text-warning); font-size: 10px; padding: 2px 7px; }
+.search-box { width: 100%; padding: 9px 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 14px; background: var(--color-background-primary); color: var(--color-text-primary); margin-bottom: 12px; }
+.loja-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s; }
+.loja-item:hover { border-color: var(--color-border-secondary); }
+.loja-item.pendente { border-left: 3px solid #E24B4A; }
+.loja-item.concluida { border-left: 3px solid #639922; }
+.loja-nome { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.loja-luc { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dot-pendente { background: #E24B4A; }
+.dot-concluida { background: #639922; }
+.progress-bar { background: var(--color-background-secondary); border-radius: 20px; height: 6px; margin-bottom: 6px; overflow: hidden; }
+.progress-fill { height: 100%; background: #639922; border-radius: 20px; transition: width 0.4s; }
+.progress-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 16px; }
+.foto-area { border: 1.5px dashed var(--color-border-secondary); border-radius: var(--border-radius-lg); padding: 32px 16px; text-align: center; cursor: pointer; margin-bottom: 16px; background: var(--color-background-secondary); }
+.foto-area.com-foto { border-style: solid; border-color: #3B6D11; background: #EAF3DE; }
+.foto-icon { font-size: 32px; margin-bottom: 8px; }
+.foto-label { font-size: 13px; color: var(--color-text-secondary); }
+.leitura-box { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 16px; margin-bottom: 16px; }
+.leitura-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.leitura-row { display: flex; align-items: center; gap: 8px; }
+.leitura-input { flex: 1; padding: 10px 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 18px; font-weight: 500; background: var(--color-background-primary); color: var(--color-text-primary); text-align: center; }
+.leitura-anterior { font-size: 12px; color: var(--color-text-secondary); margin-top: 6px; }
+.consumo-destaque { background: var(--color-background-info); border-radius: var(--border-radius-md); padding: 10px 14px; margin-top: 10px; display: none; }
+.consumo-destaque.show { display: block; }
+.consumo-val { font-size: 22px; font-weight: 500; color: var(--color-text-info); }
+.consumo-lbl { font-size: 12px; color: var(--color-text-info); }
+.btn-primary { width: 100%; padding: 12px; background: #185FA5; color: #fff; border: none; border-radius: var(--border-radius-md); font-size: 15px; font-weight: 500; cursor: pointer; margin-bottom: 10px; }
+.btn-secondary { width: 100%; padding: 11px; background: none; color: var(--color-text-secondary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 14px; cursor: pointer; margin-bottom: 10px; }
+.btn-danger { width: 100%; padding: 11px; background: none; color: var(--color-text-danger); border: 0.5px solid var(--color-border-danger); border-radius: var(--border-radius-md); font-size: 14px; cursor: pointer; margin-bottom: 10px; }
+.ia-status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 12px; }
+.spinner { width: 14px; height: 14px; border: 2px solid var(--color-border-tertiary); border-top-color: #185FA5; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.alerta { background: var(--color-background-warning); border-radius: var(--border-radius-md); padding: 10px 12px; font-size: 13px; color: var(--color-text-warning); margin-bottom: 12px; display: none; }
+.alerta.show { display: block; }
+.resumo-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px; margin-bottom: 10px; }
+.resumo-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 13px; }
+.resumo-row:last-child { border-bottom: none; }
+.resumo-row .nome { color: var(--color-text-primary); font-weight: 500; max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.resumo-row .val { color: var(--color-text-secondary); font-size: 12px; }
+.resumo-row .consumo { font-weight: 500; color: var(--color-text-info); font-size: 12px; }
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.tab { flex: 1; padding: 8px 0; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: none; font-size: 13px; cursor: pointer; color: var(--color-text-secondary); }
+.tab.active { background: var(--color-background-info); color: var(--color-text-info); border-color: transparent; }
+.empty { text-align: center; padding: 32px 16px; color: var(--color-text-tertiary); font-size: 14px; }
+.sync-bar { display: flex; align-items: center; justify-content: space-between; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 12px; margin-bottom: 14px; font-size: 12px; color: var(--color-text-secondary); }
+.fab { position: fixed; bottom: 24px; right: 24px; width: 52px; height: 52px; background: #185FA5; border: none; border-radius: 50%; cursor: pointer; color: #fff; font-size: 20px; z-index: 10; }
+.toast { position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%); background: #2C2C2A; color: #fff; font-size: 13px; padding: 8px 16px; border-radius: 20px; display: none; z-index: 20; white-space: nowrap; }
+.toast.show { display: block; }
+.coletor-info { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+</style>
+
+<div class="app">
+
+  <div id="screen-lista" class="screen active">
+    <div style="margin-bottom: 6px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <p style="font-size: 13px; font-weight: 500; color: var(--color-text-primary);">Março/2026</p>
+        <span class="badge badge-sync" id="sync-badge">Sincronizado</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width: 0%"></div></div>
+      <p class="progress-label"><span id="progress-texto">Carregando...</span></p>
+    </div>
+    <div class="sync-bar">
+      <span id="sync-info">Última atualização: —</span>
+      <button style="background: none; border: none; cursor: pointer; font-size: 12px; color: #185FA5;" onclick="carregarDados()">Atualizar</button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="filtrar('todas')">Todas</button>
+      <button class="tab" onclick="filtrar('pendentes')">Pendentes</button>
+      <button class="tab" onclick="filtrar('concluidas')">Concluídas</button>
+    </div>
+    <input class="search-box" placeholder="Buscar loja..." oninput="buscar(this.value)" />
+    <div id="lista-lojas"><div class="empty">Carregando lojas...</div></div>
+  </div>
+
+  <div id="screen-coleta" class="screen">
+    <div class="header">
+      <button class="back-btn" onclick="voltarLista()">&#8592;</button>
+      <div>
+        <h2 id="coleta-nome"></h2>
+        <p style="font-size: 12px; color: var(--color-text-secondary);" id="coleta-luc"></p>
+      </div>
+      <span class="badge badge-energia" style="margin-left: auto;">Energia</span>
+    </div>
+
+    <div id="foto-area" class="foto-area" onclick="simularFoto()">
+      <div id="foto-placeholder">
+        <div class="foto-icon">📷</div>
+        <p class="foto-label" style="font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px;">Tirar foto do medidor</p>
+        <p class="foto-label">A IA irá ler o número automaticamente</p>
+      </div>
+      <img id="foto-preview" src="" style="display: none; width: 100%; border-radius: var(--border-radius-md); max-height: 180px; object-fit: cover;" />
+    </div>
+
+    <div class="ia-status" id="ia-status" style="display: none;">
+      <div class="spinner"></div>
+      <span id="ia-msg">Analisando imagem com IA...</span>
+    </div>
+
+    <div class="leitura-box">
+      <div class="leitura-label">Leitura atual</div>
+      <div class="leitura-row">
+        <input class="leitura-input" type="number" id="leitura-input" placeholder="0" oninput="calcularConsumo()" />
+        <span style="font-size: 13px; color: var(--color-text-secondary);">kWh</span>
+      </div>
+      <div class="leitura-anterior" id="leitura-anterior"></div>
+      <div class="consumo-destaque" id="consumo-destaque">
+        <div class="consumo-lbl">Consumo do mês</div>
+        <div class="consumo-val" id="consumo-val"></div>
+      </div>
+    </div>
+
+    <div class="alerta" id="alerta-consumo">⚠️ Consumo fora do padrão. Confirme a leitura antes de salvar.</div>
+
+    <button class="btn-primary" id="btn-salvar" onclick="salvarLeitura()">Confirmar e salvar</button>
+    <button class="btn-danger" onclick="marcarDanificado()">Medidor danificado</button>
+    <button class="btn-secondary" onclick="voltarLista()">Cancelar</button>
+  </div>
+
+  <div id="screen-resumo" class="screen">
+    <div class="header">
+      <button class="back-btn" onclick="showScreen('screen-lista')">&#8592;</button>
+      <h2>Resumo da coleta</h2>
+    </div>
+    <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 14px;">Mês de referência: <strong>Março/2026</strong></p>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-bottom: 16px;">
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px; text-align: center;">
+        <div style="font-size: 22px; font-weight: 500; color: var(--color-text-primary);" id="r-total">—</div>
+        <div style="font-size: 11px; color: var(--color-text-secondary); margin-top: 2px;">total</div>
+      </div>
+      <div style="background: #EAF3DE; border-radius: var(--border-radius-md); padding: 12px; text-align: center;">
+        <div style="font-size: 22px; font-weight: 500; color: #3B6D11;" id="r-ok">—</div>
+        <div style="font-size: 11px; color: #3B6D11; margin-top: 2px;">coletadas</div>
+      </div>
+      <div style="background: #FCEBEB; border-radius: var(--border-radius-md); padding: 12px; text-align: center;">
+        <div style="font-size: 22px; font-weight: 500; color: #A32D2D;" id="r-danif">—</div>
+        <div style="font-size: 11px; color: #A32D2D; margin-top: 2px;">danificados</div>
+      </div>
+    </div>
+    <div id="resumo-lista"></div>
+    <button class="btn-primary" onclick="exportarCSV()">Exportar para Excel (.CSV)</button>
+    <button class="btn-secondary" onclick="limparDados()" style="color: var(--color-text-danger); border-color: var(--color-border-danger);">Limpar todas as leituras</button>
+    <button class="btn-secondary" onclick="sendPrompt('Quero integrar o app de coleta diretamente na minha planilha de rateio do Excel')">Como integrar com minha planilha ↗</button>
+  </div>
+
+</div>
+
+<button class="fab" onclick="showScreen('screen-resumo')">&#9776;</button>
+<div class="toast" id="toast"></div>
+
+<script>
+const LOJAS = [
+  { luc: 'L01.1', nome: 'VAGA', anterior: 58702 },
+  { luc: 'L02/03.1', nome: 'SANTO REMÉDIO', anterior: 196887 },
+  { luc: 'L04.1', nome: 'ENGENHO COZINHA', anterior: 1380172 },
+  { luc: 'L05.1', nome: 'ADIDAS', anterior: 162154 },
+  { luc: 'L06.07.1', nome: 'SIMMONS', anterior: 136491 },
+  { luc: 'L08.1', nome: 'RIACHUELO', anterior: 9328333 },
+  { luc: 'L09.1', nome: 'PICADILLY', anterior: 149380 },
+  { luc: 'L10.1', nome: 'USAFLEX', anterior: 51399 },
+  { luc: 'L11.1', nome: 'CACAU SHOW', anterior: 47394 },
+  { luc: 'L12.1', nome: 'ROMANEL', anterior: 145263 },
+  { luc: 'L13.1', nome: 'RENNER', anterior: 10073667 },
+  { luc: 'L14.1', nome: 'SAPATINHO DE LUXO', anterior: 14749 },
+  { luc: 'L15.1', nome: 'MORANA', anterior: 76270 },
+  { luc: 'L16/17.1', nome: 'INFO STORE', anterior: 214505 },
+  { luc: 'L18.1', nome: 'SAMSUNG', anterior: 36706 },
+  { luc: 'L19.1', nome: 'O BOTICÁRIO', anterior: 166844 },
+  { luc: 'L23/24.1', nome: 'COMEPI', anterior: 501881 },
+  { luc: 'L27/28.1', nome: 'LABORATÓRIO SABIN', anterior: 235433 },
+  { luc: 'L37.1', nome: 'CLÍNICA DOCTORS', anterior: 125075 },
+  { luc: 'L38.1', nome: 'KASSARA NAIL', anterior: 92506 },
+  { luc: 'L39.1', nome: 'BEMOL / BEMOL FARMA', anterior: 9509333 },
+  { luc: 'L42.1', nome: 'ENGLAND', anterior: 113885 },
+  { luc: 'L51.1', nome: 'HAVAIANAS', anterior: 108646 },
+  { luc: 'L52.1', nome: 'ARENITO', anterior: 148976 },
+  { luc: 'L53.1', nome: 'SANTA LOLLA', anterior: 126093 },
+  { luc: 'L60.1', nome: 'STUDIO Z', anterior: 464980 },
+  { luc: 'L61.1', nome: 'LUPO', anterior: 71366 },
+  { luc: 'L65.1', nome: 'FOTO NASCIMENTO', anterior: 140585 },
+  { luc: 'L68.1', nome: 'NATURA', anterior: 177678 },
+  { luc: 'L69/70.1', nome: 'CLARO', anterior: 230052 },
+];
+
+const STORAGE_KEY = 'rateio_mar2026_leituras';
+const IA_VALS = {
+  'L01.1':59365,'L02/03.1':201180,'L04.1':1410789,'L05.1':165713,
+  'L06.07.1':138982,'L08.1':9402000,'L09.1':150718,'L10.1':52507,
+  'L11.1':48371,'L12.1':146114,'L13.1':10141000,'L14.1':15726,
+  'L15.1':76983,'L16/17.1':216629,'L18.1':38200,'L19.1':167938,
+  'L23/24.1':511238,'L27/28.1':239119,'L37.1':126617,'L38.1':94341,
+  'L39.1':9589000,'L42.1':114750,'L51.1':110068,'L52.1':150001,
+  'L53.1':127937,'L60.1':473546,'L61.1':72372,'L65.1':142541,
+  'L68.1':179805,'L69/70.1':232118,
+};
+
+let leituras = {};
+let lojaAtual = null;
+let filtroAtual = 'todas';
+let buscaAtual = '';
+let fotoSimulada = false;
+
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function setSyncBadge(estado) {
+  const b = document.getElementById('sync-badge');
+  if (estado === 'salvando') { b.className = 'badge badge-saving'; b.textContent = 'Salvando...'; }
+  else { b.className = 'badge badge-sync'; b.textContent = 'Sincronizado'; }
+}
+
+async function carregarDados() {
+  try {
+    const res = await window.storage.get(STORAGE_KEY, true);
+    leituras = res ? JSON.parse(res.value) : {};
+    document.getElementById('sync-info').textContent = 'Atualizado agora';
+  } catch(e) {
+    leituras = {};
+  }
+  renderLista();
+}
+
+async function persistir() {
+  setSyncBadge('salvando');
+  try {
+    await window.storage.set(STORAGE_KEY, JSON.stringify(leituras), true);
+    setSyncBadge('ok');
+    document.getElementById('sync-info').textContent = 'Atualizado ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    setSyncBadge('ok');
+    mostrarToast('Erro ao salvar. Tente novamente.');
+  }
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'screen-resumo') renderResumo();
+}
+
+function abrirColeta(idx) {
+  lojaAtual = idx;
+  const l = LOJAS[idx];
+  document.getElementById('coleta-nome').textContent = l.nome;
+  document.getElementById('coleta-luc').textContent = l.luc;
+  document.getElementById('leitura-anterior').textContent = 'Leitura anterior: ' + l.anterior.toLocaleString('pt-BR');
+  const salvo = leituras[l.luc];
+  document.getElementById('leitura-input').value = (salvo && salvo.valor) ? salvo.valor : '';
+  document.getElementById('consumo-destaque').classList.remove('show');
+  document.getElementById('alerta-consumo').classList.remove('show');
+  document.getElementById('foto-placeholder').style.display = 'block';
+  document.getElementById('foto-preview').style.display = 'none';
+  document.getElementById('foto-area').classList.remove('com-foto');
+  document.getElementById('ia-status').style.display = 'none';
+  fotoSimulada = false;
+  calcularConsumo();
+  showScreen('screen-coleta');
+}
+
+function simularFoto() {
+  if (fotoSimulada) return;
+  fotoSimulada = true;
+  document.getElementById('foto-placeholder').style.display = 'none';
+  const iaStatus = document.getElementById('ia-status');
+  const iaMsg = document.getElementById('ia-msg');
+  iaStatus.style.display = 'flex';
+  iaMsg.textContent = 'Analisando imagem com IA...';
+
+  setTimeout(() => {
+    document.getElementById('foto-preview').src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Electric_meter.jpg/320px-Electric_meter.jpg';
+    document.getElementById('foto-preview').style.display = 'block';
+    document.getElementById('foto-area').classList.add('com-foto');
+    iaMsg.textContent = 'Leitura identificada com IA';
+    document.getElementById('ia-status').querySelector('.spinner').style.display = 'none';
+
+    const l = LOJAS[lojaAtual];
+    const v = IA_VALS[l.luc] || (l.anterior + Math.floor(Math.random()*1500+400));
+    document.getElementById('leitura-input').value = v;
+    calcularConsumo();
+    setTimeout(() => { iaStatus.style.display = 'none'; }, 1800);
+  }, 1800);
+}
+
+function calcularConsumo() {
+  if (lojaAtual === null) return;
+  const l = LOJAS[lojaAtual];
+  const val = parseFloat(document.getElementById('leitura-input').value);
+  const dest = document.getElementById('consumo-destaque');
+  if (isNaN(val) || val === 0) { dest.classList.remove('show'); return; }
+  const consumo = val - l.anterior;
+  document.getElementById('consumo-val').textContent = consumo.toLocaleString('pt-BR') + ' kWh';
+  dest.classList.add('show');
+  document.getElementById('alerta-consumo').classList.toggle('show', consumo < 0 || consumo > l.anterior * 0.03);
+}
+
+async function salvarLeitura() {
+  const l = LOJAS[lojaAtual];
+  const val = parseFloat(document.getElementById('leitura-input').value);
+  if (isNaN(val) || val === 0) { mostrarToast('Digite ou fotografe a leitura primeiro.'); return; }
+  leituras[l.luc] = { valor: val, consumo: val - l.anterior, status: 'ok', nome: l.nome, anterior: l.anterior, ts: new Date().toISOString() };
+  await persistir();
+  mostrarToast('Leitura salva com sucesso!');
+  voltarLista();
+}
+
+async function marcarDanificado() {
+  const l = LOJAS[lojaAtual];
+  leituras[l.luc] = { valor: null, consumo: null, status: 'danificado', nome: l.nome, anterior: l.anterior, ts: new Date().toISOString() };
+  await persistir();
+  mostrarToast('Medidor marcado como danificado.');
+  voltarLista();
+}
+
+function voltarLista() {
+  renderLista();
+  showScreen('screen-lista');
+}
+
+function renderLista() {
+  const concluidas = Object.keys(leituras).length;
+  const pct = Math.round((concluidas / LOJAS.length) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-texto').textContent = concluidas + ' de ' + LOJAS.length + ' lojas coletadas (' + pct + '%)';
+
+  const busca = buscaAtual.toLowerCase();
+  const filtradas = LOJAS.filter(l => {
+    const matchBusca = l.nome.toLowerCase().includes(busca) || l.luc.toLowerCase().includes(busca);
+    const status = leituras[l.luc] ? 'concluida' : 'pendente';
+    const matchFiltro = filtroAtual === 'todas' || filtroAtual === status;
+    return matchBusca && matchFiltro;
+  });
+
+  const lista = document.getElementById('lista-lojas');
+  if (filtradas.length === 0) { lista.innerHTML = '<div class="empty">Nenhuma loja encontrada</div>'; return; }
+
+  lista.innerHTML = filtradas.map(l => {
+    const idx = LOJAS.indexOf(l);
+    const d = leituras[l.luc];
+    const concluida = !!d;
+    const danif = d?.status === 'danificado';
+    const hora = d?.ts ? new Date(d.ts).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : '';
+    return `<div class="loja-item ${concluida ? 'concluida' : 'pendente'}" onclick="abrirColeta(${idx})">
+      <div style="flex:1; min-width:0;">
+        <div class="loja-nome">${l.nome}</div>
+        <div class="loja-luc">${l.luc}${danif ? ' · <span style="color:var(--color-text-danger)">danificado</span>' : d ? ' · ' + d.consumo.toLocaleString('pt-BR') + ' kWh' : ''}${hora ? ' · ' + hora : ''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+        ${danif ? '<span class="badge badge-danificado">Danif.</span>' : d ? '<span class="badge badge-ok">OK</span>' : ''}
+        <div class="status-dot ${concluida ? 'dot-concluida' : 'dot-pendente'}"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filtrar(f) {
+  filtroAtual = f;
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['todas','pendentes','concluidas'][i] === f));
+  renderLista();
+}
+
+function buscar(v) { buscaAtual = v; renderLista(); }
+
+function renderResumo() {
+  const ok = Object.values(leituras).filter(l => l.status === 'ok').length;
+  const danif = Object.values(leituras).filter(l => l.status === 'danificado').length;
+  document.getElementById('r-total').textContent = LOJAS.length;
+  document.getElementById('r-ok').textContent = ok;
+  document.getElementById('r-danif').textContent = danif;
+
+  const itens = Object.entries(leituras);
+  const lista = document.getElementById('resumo-lista');
+  if (!itens.length) { lista.innerHTML = '<div class="empty">Nenhuma leitura coletada ainda</div>'; return; }
+  lista.innerHTML = '<div class="resumo-card">' + itens.map(([luc, d]) =>
+    `<div class="resumo-row">
+      <span class="nome">${d.nome}</span>
+      <span class="val">${d.valor ? d.valor.toLocaleString('pt-BR') : '—'}</span>
+      <span class="consumo">${d.status === 'danificado' ? '⚠ danif.' : d.consumo.toLocaleString('pt-BR') + ' kWh'}</span>
+    </div>`
+  ).join('') + '</div>';
+}
+
+function exportarCSV() {
+  const linhas = [['LUC','Loja','Leitura Anterior','Leitura Atual','Consumo','Status','Horário']];
+  LOJAS.forEach(l => {
+    const d = leituras[l.luc];
+    const hora = d?.ts ? new Date(d.ts).toLocaleString('pt-BR') : '';
+    linhas.push([l.luc, l.nome, l.anterior, d?.valor || '', d?.consumo ?? '', d?.status || 'pendente', hora]);
+  });
+  const csv = linhas.map(r => r.join(';')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'leituras_marco2026.csv'; a.click();
+  mostrarToast('Arquivo exportado!');
+}
+
+async function limparDados() {
+  if (!confirm('Apagar todas as leituras salvas?')) return;
+  leituras = {};
+  await window.storage.delete(STORAGE_KEY, true);
+  renderLista();
+  mostrarToast('Leituras apagadas.');
+}
+
+carregarDados();
+</script>
