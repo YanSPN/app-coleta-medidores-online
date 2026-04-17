@@ -169,7 +169,7 @@
 const supabase = supabase.createClient(
   'https://gdiiyafpdufqtxxtahap.supabase.co',
   'sb_publishable_o0DCHA9VzXZExEGXcNjM8w_63m5h72p'
-
+);
 const LOJAS = [
   { luc: 'L01.1', nome: 'VAGA', anterior: 58702 },
   { luc: 'L02/03.1', nome: 'SANTO REMÉDIO', anterior: 196887 },
@@ -318,17 +318,49 @@ function calcularConsumo() {
   document.getElementById('alerta-consumo').classList.toggle('show', consumo < 0 || consumo > l.anterior * 0.03);
 }
 
-async function salvarLeitura(supabase
-  .from('leituras')
-  .insert([
-    {
-      luc: l.luc,
-      nome: l.nome,
-      leitura: val,
-      consumo: val - l.anterior,
-      status: 'ok'
-    }
-  ]);) {
+async function salvarLeitura() {
+  const l = LOJAS[lojaAtual];
+  const val = parseFloat(document.getElementById('leitura-input').value);
+
+  if (isNaN(val) || val === 0) {
+    mostrarToast('Digite ou fotografe a leitura primeiro.');
+    return;
+  }
+
+  // 👉 SALVAR NO SUPABASE
+  const { error } = await supabase
+    .from('leituras')
+    .insert([
+      {
+        luc: l.luc,
+        nome: l.nome,
+        leitura: val,
+        consumo: val - l.anterior,
+        status: 'ok'
+      }
+    ]);
+
+  if (error) {
+    console.error(error);
+    mostrarToast('Erro ao salvar no banco!');
+    return;
+  }
+
+  // 👉 salvar local também (se quiser manter)
+  leituras[l.luc] = {
+    valor: val,
+    consumo: val - l.anterior,
+    status: 'ok',
+    nome: l.nome,
+    anterior: l.anterior,
+    ts: new Date().toISOString()
+  };
+
+  await persistir();
+
+  mostrarToast('Leitura salva com sucesso!');
+  voltarLista();
+}
   const l = LOJAS[lojaAtual];
   const val = parseFloat(document.getElementById('leitura-input').value);
   if (isNaN(val) || val === 0) { mostrarToast('Digite ou fotografe a leitura primeiro.'); return; }
