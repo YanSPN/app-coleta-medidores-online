@@ -8,158 +8,140 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; }
-    .app { max-width: 480px; margin: 0 auto; background: #fff; min-height: 100dvh; position: relative; }
-    .screen { display: none; padding: 16px 16px 80px; }
+    .app { max-width: 480px; margin: 0 auto; background: #fff; min-height: 100dvh; }
+    .screen { display: none; padding: 16px 16px 90px; }
     .screen.active { display: block; }
-
-    /* Header */
+    .insumo-tabs { display: flex; gap: 0; margin-bottom: 16px; border: 1.5px solid #e0e0e0; border-radius: 12px; overflow: hidden; }
+    .insumo-tab { flex: 1; padding: 11px 0; border: none; background: none; font-size: 13px; font-weight: 600; cursor: pointer; color: #888; }
+    .insumo-tab.active-energia { background: #e8f0fe; color: #1a73e8; }
+    .insumo-tab.active-agua    { background: #e3f2fd; color: #0277bd; }
+    .insumo-tab.active-gas     { background: #fff3e0; color: #e65100; }
+    .insumo-tab:not(:last-child) { border-right: 1.5px solid #e0e0e0; }
     .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 0; margin-bottom: 16px; }
     .top-bar h1 { font-size: 17px; font-weight: 600; }
-    .back-btn { background: none; border: none; cursor: pointer; font-size: 22px; color: #555; padding: 4px 8px 4px 0; line-height: 1; }
-
-    /* Progress */
-    .progress-wrap { margin-bottom: 8px; }
-    .progress-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .back-btn { background: none; border: none; cursor: pointer; font-size: 22px; color: #555; padding: 4px 8px 4px 0; }
+    .progress-meta { display: flex; justify-content: space-between; margin-bottom: 6px; }
     .progress-meta span { font-size: 12px; color: #666; }
-    .progress-bar { background: #eee; border-radius: 10px; height: 7px; overflow: hidden; }
-    .progress-fill { height: 100%; background: #2e7d32; border-radius: 10px; transition: width 0.4s; }
-
-    /* Sync bar */
+    .progress-bar { background: #eee; border-radius: 10px; height: 7px; overflow: hidden; margin-bottom: 8px; }
+    .progress-fill { height: 100%; border-radius: 10px; transition: width .4s; }
+    .fill-energia { background: #1a73e8; }
+    .fill-agua    { background: #0277bd; }
+    .fill-gas     { background: #e65100; }
     .sync-bar { display: flex; align-items: center; justify-content: space-between; background: #f8f8f8; border-radius: 10px; padding: 8px 12px; margin-bottom: 14px; border: 1px solid #eee; }
     .sync-bar span { font-size: 12px; color: #666; }
-    .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #2e7d32; margin-right: 6px; display: inline-block; flex-shrink: 0; }
+    .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #2e7d32; margin-right: 6px; display: inline-block; }
     .sync-dot.saving { background: #f59e0b; animation: pulse 1s infinite; }
-    .sync-dot.error { background: #dc2626; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .sync-dot.error  { background: #dc2626; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
     .refresh-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: #1a73e8; font-weight: 500; }
-
-    /* Tabs */
     .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
-    .tab { flex: 1; padding: 9px 0; border: 1.5px solid #e0e0e0; border-radius: 10px; background: none; font-size: 13px; cursor: pointer; color: #666; transition: all 0.15s; }
+    .tab { flex: 1; padding: 9px 0; border: 1.5px solid #e0e0e0; border-radius: 10px; background: none; font-size: 13px; cursor: pointer; color: #666; }
     .tab.active { background: #e8f0fe; color: #1a73e8; border-color: #1a73e8; font-weight: 500; }
-
-    /* Search */
     .search-box { width: 100%; padding: 10px 14px; border: 1.5px solid #e0e0e0; border-radius: 12px; font-size: 15px; background: #fafafa; margin-bottom: 12px; outline: none; }
-    .search-box:focus { border-color: #1a73e8; background: #fff; }
-
-    /* Loja item */
-    .loja-item { display: flex; align-items: center; padding: 13px 14px; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s; }
-    .loja-item:hover { border-color: #bbb; }
-    .loja-item.pendente { border-left: 4px solid #dc2626; }
-    .loja-item.concluida { border-left: 4px solid #2e7d32; }
+    .loja-item { display: flex; align-items: center; padding: 13px 14px; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; margin-bottom: 8px; cursor: pointer; }
+    .loja-item.pendente   { border-left: 4px solid #dc2626; }
+    .loja-item.concluida  { border-left: 4px solid #2e7d32; }
     .loja-item.danificada { border-left: 4px solid #f59e0b; }
     .loja-info { flex: 1; min-width: 0; }
     .loja-nome { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .loja-sub { font-size: 12px; color: #888; margin-top: 2px; }
+    .loja-sub  { font-size: 12px; color: #888; margin-top: 2px; }
     .status-chip { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; flex-shrink: 0; margin-left: 8px; }
-    .chip-ok { background: #e8f5e9; color: #2e7d32; }
+    .chip-ok    { background: #e8f5e9; color: #2e7d32; }
     .chip-danif { background: #fff8e1; color: #b45309; }
-    .chip-pend { background: #fef2f2; color: #dc2626; }
-
-    /* Coleta screen */
+    .chip-pend  { background: #fef2f2; color: #dc2626; }
     .coleta-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px 12px; border-bottom: 1px solid #f0f0f0; margin-bottom: 16px; }
     .coleta-header h2 { font-size: 16px; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .luc-badge { font-size: 11px; background: #e8f0fe; color: #1a73e8; padding: 3px 8px; border-radius: 8px; font-weight: 600; flex-shrink: 0; }
-
-    /* Foto */
-    .foto-area { border: 2px dashed #d0d0d0; border-radius: 16px; overflow: hidden; background: #fafafa; margin-bottom: 16px; cursor: pointer; min-height: 180px; display: flex; align-items: center; justify-content: center; position: relative; }
+    .luc-badge { font-size: 11px; padding: 3px 8px; border-radius: 8px; font-weight: 600; flex-shrink: 0; }
+    .luc-energia { background: #e8f0fe; color: #1a73e8; }
+    .luc-agua    { background: #e3f2fd; color: #0277bd; }
+    .luc-gas     { background: #fff3e0; color: #e65100; }
+    .foto-area { border: 2px dashed #d0d0d0; border-radius: 16px; overflow: hidden; background: #fafafa; margin-bottom: 16px; cursor: pointer; min-height: 170px; display: flex; align-items: center; justify-content: center; position: relative; }
     .foto-area.com-foto { border-style: solid; border-color: #2e7d32; background: #f1f8f1; }
     .foto-placeholder { text-align: center; padding: 24px 16px; }
-    .foto-icon { font-size: 40px; margin-bottom: 10px; }
+    .foto-icon { font-size: 38px; margin-bottom: 8px; }
     .foto-placeholder p { font-size: 14px; color: #555; font-weight: 500; margin-bottom: 4px; }
     .foto-placeholder small { font-size: 12px; color: #999; }
     .foto-preview { width: 100%; max-height: 220px; object-fit: cover; display: block; }
     #file-input { display: none; }
-    .foto-change-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; }
-
-    /* IA status */
-    .ia-status { display: none; align-items: center; gap: 8px; font-size: 13px; color: #666; background: #f0f4ff; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; }
+    .foto-change-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,.6); color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; }
+    .ia-status { display: none; align-items: center; gap: 8px; font-size: 13px; color: #555; background: #f0f4ff; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; }
     .ia-status.show { display: flex; }
-    .spinner { width: 16px; height: 16px; border: 2px solid #d0d7f0; border-top-color: #1a73e8; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+    .spinner { width: 16px; height: 16px; border: 2px solid #d0d7f0; border-top-color: #1a73e8; border-radius: 50%; animation: spin .8s linear infinite; flex-shrink: 0; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Leitura */
-    .leitura-card { background: #f8f9ff; border: 1.5px solid #e0e7ff; border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    .leitura-card { border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    .card-energia { background: #f8f9ff; border: 1.5px solid #e0e7ff; }
+    .card-agua    { background: #f0f8ff; border: 1.5px solid #b3d9f8; }
+    .card-gas     { background: #fff8f0; border: 1.5px solid #fcd7a8; }
     .leitura-card label { font-size: 12px; color: #666; font-weight: 500; display: block; margin-bottom: 6px; }
     .leitura-row { display: flex; align-items: center; gap: 8px; }
     .leitura-input { flex: 1; padding: 11px 14px; border: 1.5px solid #d0d7f0; border-radius: 10px; font-size: 20px; font-weight: 600; background: #fff; color: #1a1a1a; text-align: center; outline: none; }
-    .leitura-input:focus { border-color: #1a73e8; }
-    .unit { font-size: 14px; color: #888; font-weight: 500; }
+    .unit { font-size: 14px; color: #888; font-weight: 500; min-width: 32px; }
     .anterior-info { font-size: 12px; color: #888; margin-top: 8px; }
-    .consumo-box { background: #e8f0fe; border-radius: 10px; padding: 10px 14px; margin-top: 12px; display: none; }
+    .consumo-box { border-radius: 10px; padding: 10px 14px; margin-top: 12px; display: none; }
     .consumo-box.show { display: block; }
-    .consumo-box .label { font-size: 11px; color: #1a73e8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-    .consumo-box .valor { font-size: 24px; font-weight: 700; color: #1a56db; margin-top: 2px; }
-
-    /* Alerts */
-    .alerta { display: none; background: #fff8e1; border: 1.5px solid #fcd34d; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #92400e; margin-bottom: 12px; }
-    .alerta.show { display: block; }
-
-    /* Coletor input */
+    .cbox-energia { background: #e8f0fe; }
+    .cbox-agua    { background: #dceefb; }
+    .cbox-gas     { background: #fff3e0; }
+    .consumo-box .clabel { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    .cbox-energia .clabel { color: #1a73e8; }
+    .cbox-agua    .clabel { color: #0277bd; }
+    .cbox-gas     .clabel { color: #e65100; }
+    .consumo-box .cvalor { font-size: 24px; font-weight: 700; margin-top: 2px; }
+    .cbox-energia .cvalor { color: #1a56db; }
+    .cbox-agua    .cvalor { color: #01579b; }
+    .cbox-gas     .cvalor { color: #bf360c; }
     .coletor-wrap { margin-bottom: 14px; }
     .coletor-wrap label { font-size: 12px; color: #666; font-weight: 500; display: block; margin-bottom: 5px; }
     .coletor-input { width: 100%; padding: 9px 12px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 14px; background: #fff; outline: none; }
-    .coletor-input:focus { border-color: #1a73e8; }
-
-    /* Buttons */
-    .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 10px; transition: opacity 0.15s; }
-    .btn:active { opacity: 0.85; }
-    .btn-primary { background: #1a73e8; color: #fff; }
-    .btn-warning { background: #fff8e1; color: #92400e; border: 1.5px solid #fcd34d; }
+    .alerta { display: none; background: #fff8e1; border: 1.5px solid #fcd34d; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #92400e; margin-bottom: 12px; }
+    .alerta.show { display: block; }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+    .btn-e { background: #1a73e8; color: #fff; }
+    .btn-a { background: #0277bd; color: #fff; }
+    .btn-g { background: #e65100; color: #fff; }
+    .btn-warn  { background: #fff8e1; color: #92400e; border: 1.5px solid #fcd34d; }
     .btn-ghost { background: #f5f5f5; color: #555; }
-
-    /* Resumo */
+    .resumo-itabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .resumo-itab { flex: 1; padding: 9px; border: 1.5px solid #e0e0e0; border-radius: 10px; background: none; font-size: 13px; cursor: pointer; color: #888; font-weight: 500; }
+    .resumo-itab.active { border-color: #1a73e8; color: #1a73e8; background: #e8f0fe; }
     .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
     .stat-card { border-radius: 12px; padding: 12px; text-align: center; }
     .stat-card .num { font-size: 26px; font-weight: 700; }
     .stat-card .lbl { font-size: 11px; margin-top: 2px; font-weight: 500; }
-    .stat-total { background: #f5f5f5; }
-    .stat-total .num { color: #333; }
-    .stat-total .lbl { color: #888; }
-    .stat-ok { background: #e8f5e9; }
-    .stat-ok .num { color: #2e7d32; }
-    .stat-ok .lbl { color: #388e3c; }
-    .stat-danif { background: #fff8e1; }
-    .stat-danif .num { color: #b45309; }
-    .stat-danif .lbl { color: #b45309; }
-
+    .stat-total { background: #f5f5f5; } .stat-total .num { color: #333; } .stat-total .lbl { color: #888; }
+    .stat-ok { background: #e8f5e9; } .stat-ok .num { color: #2e7d32; } .stat-ok .lbl { color: #388e3c; }
+    .stat-danif { background: #fff8e1; } .stat-danif .num { color: #b45309; } .stat-danif .lbl { color: #b45309; }
     .resumo-list { background: #fff; border: 1.5px solid #eee; border-radius: 14px; overflow: hidden; margin-bottom: 14px; }
     .resumo-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid #f5f5f5; font-size: 13px; }
     .resumo-row:last-child { border-bottom: none; }
     .resumo-nome { font-weight: 600; max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .resumo-val { color: #888; font-size: 12px; }
     .resumo-consumo { font-weight: 600; color: #1a73e8; font-size: 12px; }
-
-    /* Toast */
-    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #333; color: #fff; font-size: 14px; padding: 10px 20px; border-radius: 24px; z-index: 100; transition: transform 0.3s; white-space: nowrap; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #333; color: #fff; font-size: 14px; padding: 10px 20px; border-radius: 24px; z-index: 100; transition: transform .3s; white-space: nowrap; }
     .toast.show { transform: translateX(-50%) translateY(0); }
-
-    /* FAB */
-    .fab { position: fixed; bottom: 20px; right: 20px; width: 54px; height: 54px; background: #1a73e8; color: #fff; border: none; border-radius: 50%; font-size: 22px; cursor: pointer; box-shadow: 0 4px 12px rgba(26,115,232,0.4); z-index: 50; display: flex; align-items: center; justify-content: center; }
-
+    .fab { position: fixed; bottom: 20px; right: 20px; width: 54px; height: 54px; background: #1a73e8; color: #fff; border: none; border-radius: 50%; font-size: 22px; cursor: pointer; box-shadow: 0 4px 12px rgba(26,115,232,.4); z-index: 50; display: flex; align-items: center; justify-content: center; }
     .empty { text-align: center; padding: 40px 16px; color: #aaa; font-size: 14px; }
-    .loading { text-align: center; padding: 32px; color: #aaa; }
   </style>
 </head>
 <body>
 <div class="app">
-
-  <!-- TELA: LISTA -->
+  <!-- LISTA -->
   <div id="screen-lista" class="screen active">
     <div class="top-bar">
       <h1>Coleta de Medidores</h1>
       <span id="mes-label" style="font-size:12px;color:#888;background:#f0f0f0;padding:4px 10px;border-radius:20px;"></span>
     </div>
-
-    <div style="padding: 0 16px;">
-      <div class="progress-wrap">
-        <div class="progress-meta">
-          <span id="progress-texto">Carregando...</span>
-          <span id="progress-pct">0%</span>
-        </div>
-        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div style="padding:0 16px;">
+      <div class="insumo-tabs">
+        <button class="insumo-tab active-energia" id="itab-energia" onclick="mudarInsumo('energia')">⚡ Energia</button>
+        <button class="insumo-tab" id="itab-agua" onclick="mudarInsumo('agua')">💧 Água</button>
+        <button class="insumo-tab" id="itab-gas" onclick="mudarInsumo('gas')">🔥 Gás</button>
       </div>
-
+      <div class="progress-meta">
+        <span id="progress-texto">Carregando...</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar"><div id="progress-fill" class="progress-fill fill-energia" style="width:0%"></div></div>
       <div class="sync-bar">
         <div style="display:flex;align-items:center;">
           <span class="sync-dot" id="sync-dot"></span>
@@ -167,28 +149,24 @@
         </div>
         <button class="refresh-btn" onclick="carregarLeituras()">Atualizar</button>
       </div>
-
       <div class="tabs">
         <button class="tab active" onclick="filtrar('todas')">Todas</button>
         <button class="tab" onclick="filtrar('pendentes')">Pendentes</button>
         <button class="tab" onclick="filtrar('concluidas')">Concluídas</button>
       </div>
-
       <input class="search-box" placeholder="Buscar por nome ou código..." oninput="buscar(this.value)" />
-      <div id="lista-lojas"><div class="loading">Carregando lojas...</div></div>
+      <div id="lista-lojas"><div class="empty">Carregando...</div></div>
     </div>
   </div>
 
-  <!-- TELA: COLETA -->
-  <div id="screen-coleta" class="screen" style="padding:0 0 80px;">
+  <!-- COLETA -->
+  <div id="screen-coleta" class="screen" style="padding:0 0 90px;">
     <div class="coleta-header">
       <button class="back-btn" onclick="voltarLista()">&#8592;</button>
       <h2 id="coleta-nome"></h2>
-      <span class="luc-badge" id="coleta-luc"></span>
+      <span class="luc-badge luc-energia" id="coleta-badge"></span>
     </div>
-
-    <div style="padding: 0 16px;">
-      <!-- Foto -->
+    <div style="padding:0 16px;">
       <div id="foto-area" class="foto-area" onclick="abrirCamera()">
         <div id="foto-placeholder" class="foto-placeholder">
           <div class="foto-icon">📷</div>
@@ -196,529 +174,342 @@
           <small>A IA tentará ler o número automaticamente</small>
         </div>
         <img id="foto-preview" class="foto-preview" src="" style="display:none;" />
-        <button id="foto-change-btn" class="foto-change-btn" style="display:none;" onclick="event.stopPropagation(); abrirCamera()">Trocar foto</button>
+        <button id="foto-change-btn" class="foto-change-btn" style="display:none;" onclick="event.stopPropagation();abrirCamera()">Trocar foto</button>
       </div>
       <input type="file" id="file-input" accept="image/*" capture="environment" onchange="processarFoto(this)" />
-
-      <!-- IA status -->
       <div class="ia-status" id="ia-status">
         <div class="spinner"></div>
         <span id="ia-msg">Analisando imagem...</span>
       </div>
-
-      <!-- Nome do coletor -->
       <div class="coletor-wrap">
         <label>Coletado por</label>
         <input class="coletor-input" id="coletor-input" placeholder="Seu nome" />
       </div>
-
-      <!-- Leitura -->
-      <div class="leitura-card">
+      <div id="leitura-card" class="leitura-card card-energia">
         <label>Leitura atual</label>
         <div class="leitura-row">
           <input class="leitura-input" type="number" id="leitura-input" placeholder="0" oninput="calcularConsumo()" />
-          <span class="unit">kWh</span>
+          <span class="unit" id="unit-label">kWh</span>
         </div>
         <div class="anterior-info" id="leitura-anterior"></div>
-        <div class="consumo-box" id="consumo-box">
-          <div class="label">Consumo do mês</div>
-          <div class="valor" id="consumo-val"></div>
+        <div id="consumo-box" class="consumo-box cbox-energia">
+          <div class="clabel">Consumo do mês</div>
+          <div class="cvalor" id="consumo-val"></div>
         </div>
       </div>
-
-      <div class="alerta" id="alerta-consumo">⚠️ Consumo fora do padrão — verifique a leitura antes de salvar.</div>
-
-      <button class="btn btn-primary" id="btn-salvar" onclick="salvarLeitura()">Confirmar e salvar</button>
-      <button class="btn btn-warning" onclick="marcarDanificado()">Medidor danificado / ilegível</button>
+      <div class="alerta" id="alerta-consumo">⚠️ Consumo fora do padrão — verifique antes de salvar.</div>
+      <button class="btn btn-e" id="btn-salvar" onclick="salvarLeitura()">Confirmar e salvar</button>
+      <button class="btn btn-warn" onclick="marcarDanificado()">Medidor danificado / ilegível</button>
       <button class="btn btn-ghost" onclick="voltarLista()">Cancelar</button>
     </div>
   </div>
 
-  <!-- TELA: RESUMO -->
+  <!-- RESUMO -->
   <div id="screen-resumo" class="screen">
     <div class="top-bar">
       <button class="back-btn" onclick="showScreen('screen-lista')">&#8592;</button>
       <h1>Resumo da coleta</h1>
     </div>
-    <div style="padding: 0 16px;">
+    <div style="padding:0 16px;">
       <p style="font-size:13px;color:#888;margin-bottom:14px;">Mês: <strong id="resumo-mes"></strong></p>
+      <div class="resumo-itabs">
+        <button class="resumo-itab active" onclick="mudarResumoInsumo('energia')">⚡ Energia</button>
+        <button class="resumo-itab" onclick="mudarResumoInsumo('agua')">💧 Água</button>
+        <button class="resumo-itab" onclick="mudarResumoInsumo('gas')">🔥 Gás</button>
+      </div>
       <div class="stat-grid">
         <div class="stat-card stat-total"><div class="num" id="r-total">—</div><div class="lbl">lojas</div></div>
         <div class="stat-card stat-ok"><div class="num" id="r-ok">—</div><div class="lbl">coletadas</div></div>
         <div class="stat-card stat-danif"><div class="num" id="r-danif">—</div><div class="lbl">danificados</div></div>
       </div>
       <div id="resumo-lista"></div>
-      <button class="btn btn-primary" onclick="exportarCSV()">Exportar para Excel (.CSV)</button>
-      <button class="btn btn-ghost" onclick="sendPrompt && sendPrompt('Como posso automatizar a importação do CSV exportado para a minha planilha de rateio no Excel?')">Como importar na planilha ↗</button>
+      <button class="btn btn-e" onclick="exportarCSV()">Exportar para Excel (.CSV)</button>
     </div>
   </div>
-
 </div>
-
 <button class="fab" onclick="showScreen('screen-resumo')">&#9776;</button>
 <div class="toast" id="toast"></div>
-
 <script>
-// ============================================================
-// CONFIGURAÇÃO SUPABASE — substitua com suas credenciais
-// ============================================================
-const SUPABASE_URL = 'https://gdiiyafpdufqtxxtahap.supabase.co';
+const SUPABASE_URL      = 'https://gdiiyafpdufqtxxtahap.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_o0DCHA9VzXZExEGXcNjM8w_63m5h72p';
-const MES_ATUAL = '2026-03'; // formato YYYY-MM
-// ============================================================
+const ANTHROPIC_KEY     = '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';
+const MES_ATUAL         = '2026-03';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const LOJAS = [
-  { luc: 'L01.1', nome: 'VAGA', anterior: 58702 },
-  { luc: 'L02/03.1', nome: 'SANTO REMÉDIO', anterior: 196887 },
-  { luc: 'L04.1', nome: 'ENGENHO COZINHA FUNCIONAL', anterior: 1380172 },
-  { luc: 'L05.1', nome: 'ADIDAS', anterior: 162154 },
-  { luc: 'L06.07.1', nome: 'SIMMONS', anterior: 136491 },
-  { luc: 'L08.1', nome: 'RIACHUELO', anterior: 9328333 },
-  { luc: 'L09.1', nome: 'PICADILLY', anterior: 149380 },
-  { luc: 'L10.1', nome: 'USAFLEX', anterior: 51399 },
-  { luc: 'L11.1', nome: 'CACAU SHOW', anterior: 47394 },
-  { luc: 'L12.1', nome: 'ROMANEL', anterior: 145263 },
-  { luc: 'L13.1', nome: 'RENNER', anterior: 10073667 },
-  { luc: 'L14.1', nome: 'SAPATINHO DE LUXO', anterior: 14749 },
-  { luc: 'L15.1', nome: 'MORANA', anterior: 76270 },
-  { luc: 'L16/17.1', nome: 'INFO STORE', anterior: 214505 },
-  { luc: 'L18.1', nome: 'SAMSUNG', anterior: 36706 },
-  { luc: 'L19.1', nome: 'O BOTICÁRIO', anterior: 166844 },
-  { luc: 'L20/22.1', nome: 'FUNFESTAS', anterior: 356205 },
-  { luc: 'L23/24.1', nome: 'COMEPI', anterior: 501881 },
-  { luc: 'L27/28.1', nome: 'LABORATÓRIO SABIN', anterior: 235433 },
-  { luc: 'L36C.1', nome: 'PRIME', anterior: 70661 },
-  { luc: 'L37.1', nome: 'CLÍNICA DOCTORS', anterior: 125075 },
-  { luc: 'L38.1', nome: 'KASSARA NAIL', anterior: 92506 },
-  { luc: 'L39.1', nome: 'BEMOL / BEMOL FARMA', anterior: 9509333 },
-  { luc: 'L42.1', nome: 'ENGLAND', anterior: 113885 },
-  { luc: 'L43A46.1', nome: 'EMPÓRIO RODRIGUES', anterior: 3112718 },
-  { luc: 'L47A50.1', nome: 'SHOP DO PÉ', anterior: 172273 },
-  { luc: 'L51.1', nome: 'HAVAIANAS', anterior: 108646 },
-  { luc: 'L52.1', nome: 'ARENITO', anterior: 148976 },
-  { luc: 'L53.1', nome: 'SANTA LOLLA', anterior: 126093 },
-  { luc: 'L54.1', nome: 'RAÇA RUBRO NEGRA', anterior: 119552 },
-  { luc: 'L55.1', nome: 'CVC TURISMO', anterior: 44348 },
-  { luc: 'L56.1', nome: 'AVATIM', anterior: 21340 },
-  { luc: 'L60.1', nome: 'STUDIO Z', anterior: 464980 },
-  { luc: 'L61.1', nome: 'LUPO', anterior: 71366 },
-  { luc: 'L62.1', nome: 'MG SURF', anterior: 42960 },
-  { luc: 'L64.1', nome: 'COLCHÕES ORTOBOM', anterior: 81492 },
-  { luc: 'L65.1', nome: 'FOTO NASCIMENTO', anterior: 140585 },
-  { luc: 'L68.1', nome: 'NATURA', anterior: 177678 },
-  { luc: 'L69/70.1', nome: 'CLARO', anterior: 230052 },
-  { luc: 'L71.1', nome: 'RAVANELLI', anterior: 27850 },
-  { luc: 'L72.1', nome: 'MELISSA', anterior: 6946 },
-  { luc: 'L73.1', nome: 'BAGAGGIO', anterior: 166474 },
-  { luc: 'L74.1', nome: 'ÓTICA OFTALNORTE', anterior: 74926 },
-  { luc: 'L75.1', nome: 'PRODMED', anterior: 63500 },
-  { luc: 'L76.1', nome: 'FIRST CLASS', anterior: 78255 },
-  { luc: 'L77/81/821', nome: 'AMANDA BEAUTY CENTER', anterior: 300706 },
-  { luc: 'L79/80.1', nome: 'MILKYMOO', anterior: 154294 },
-  { luc: 'L83/84.1', nome: 'HERING', anterior: 51551 },
-  { luc: 'L85.1', nome: 'SUBWAY', anterior: 147852 },
-  { luc: 'L85A.1', nome: 'ROCK DREAMS', anterior: 11046 },
-  { luc: 'L01/05.2', nome: 'BROOKFIELD', anterior: 112298 },
-  { luc: 'L07.2', nome: 'MONTREAL', anterior: 643187 },
-  { luc: 'L08.2', nome: 'ALL BAGS', anterior: 93612 },
-  { luc: 'L09/10.2', nome: 'POBRE JUAN', anterior: 1201924 },
-  { luc: 'L12A.2', nome: 'SAN PAOLO', anterior: 50357 },
-  { luc: 'L16/17/182', nome: 'IPLACE', anterior: 270202 },
-  { luc: 'L24.2', nome: 'M MARTAN', anterior: 33647 },
-  { luc: 'L25/26.2', nome: 'COCO BAMBU', anterior: 1009011 },
-  { luc: 'L27.2', nome: 'DI DONNA', anterior: 199101 },
-  { luc: 'L28.2', nome: 'OTICA AVENIDA', anterior: 22939 },
-  { luc: 'L31B2/32.2', nome: 'LASER COMPANY', anterior: 18150 },
-  { luc: 'L34.2', nome: 'CAPODARTE', anterior: 35973 },
-  { luc: 'L38/39.2', nome: 'VIVARA', anterior: 394345 },
-  { luc: 'L40.2', nome: 'VIA LASER', anterior: 42836 },
-  { luc: 'L42.2', nome: 'ÁGUA DE COCO', anterior: 141767 },
-  { luc: 'L43.2', nome: 'ZINZANE', anterior: 50584 },
-  { luc: 'L44.2', nome: 'LANÇA PERFUME', anterior: 293180 },
-  { luc: 'L46.2', nome: 'DRESS TO', anterior: 82046 },
-  { luc: 'L47.2', nome: 'TRACK & FIELD', anterior: 62902 },
-  { luc: 'L48.2', nome: 'LIZ', anterior: 54454 },
-  { luc: 'L52.2', nome: 'ESPAÇO LASER', anterior: 23929 },
-  { luc: 'L53.2', nome: 'SOBRANCELHAS DESIGN', anterior: 32507 },
-  { luc: 'L54.2', nome: 'LOUNGERIE', anterior: 260300 },
-  { luc: 'L55.2', nome: 'AREZZO', anterior: 228222 },
-  { luc: 'L56.2', nome: 'BLEND MINEIRO', anterior: 248389 },
-  { luc: 'L57.2', nome: 'TOP INTERNAC./L\'OCCITANE', anterior: 294615 },
-  { luc: 'L58.2', nome: 'ARAMIS', anterior: 62822 },
-  { luc: 'C01.L3', nome: 'SIDI SETOR 01', anterior: 343728 },
-  { luc: 'L07.03', nome: 'GIRAFFAS', anterior: 764332 },
-  { luc: 'L09.3', nome: 'CINÉPOLIS', anterior: 15576000 },
-  { luc: 'L10/11.3', nome: 'MC DONALD\'S', anterior: 2543976 },
-  { luc: 'L12.3', nome: 'RISOTTO MIX', anterior: 667010 },
-  { luc: 'L13.3', nome: 'DI ROMANNI', anterior: 184171 },
-  { luc: 'L14.3', nome: 'BOBS LOJA', anterior: 389146 },
-  { luc: 'L16/17.3', nome: 'BURGER KING', anterior: 563739 },
-  { luc: 'L19B.3', nome: 'SPOLETO', anterior: 136454 },
-  { luc: 'L21.3', nome: 'PICANHA MANIA', anterior: 491702 },
-  { luc: 'L26.3', nome: 'FRANS CAFÉ', anterior: 63420 },
-  { luc: 'L30B-56.3', nome: 'TOK & STOK', anterior: 909034 },
-  { luc: 'L35.3', nome: 'IPOG 1', anterior: 222021 },
-  { luc: 'L41.3', nome: 'FÓRMULA ACADEMIA', anterior: 239971 },
-  { luc: 'L48/49.3', nome: 'PLANETA IMAGINÁRIO', anterior: 63037 },
-  { luc: 'L40.3', nome: 'LOJAS AMERICANAS', anterior: 358076 },
-  { luc: 'QC01.1', nome: 'QUIOSQUE BOBS', anterior: 177678 },
-  { luc: 'QC9.L1', nome: 'QUIOSQUE ARTE DI LATTE', anterior: 109393 },
-  { luc: 'QC20.L1', nome: 'QUIOSQUE MC DONALDS', anterior: 44385 },
-  { luc: 'QC01.G1', nome: 'ECOLAVAGEM DRY SERVICE', anterior: 80224 },
-  { luc: 'QC03.G1', nome: 'BOX CROSSFIT', anterior: 155375 },
-  { luc: 'QC04.G1', nome: 'LAVANDERIA OMO', anterior: 67281 },
-  { luc: 'ANTENA', nome: 'AMERICAN TOWER', anterior: 51691 },
-  { luc: 'MERCHAN 14', nome: 'KUARA ENERGY', anterior: 350292 },
-  { luc: 'G1', nome: 'TOK & STOK DEPÓSITO', anterior: 262116 },
-  { luc: 'C108.L1', nome: 'CIMO', anterior: 77283 },
-];
+const UNIDADES = { energia:'kWh', agua:'m³', gas:'m³' };
 
-// Estado local
-let leituras = {};
-let lojaAtual = null;
-let filtroAtual = 'todas';
-let buscaAtual = '';
-let fotoBlob = null;
-let salvando = false;
+const LOJAS = {
+  energia: [
+    {luc:'L01.1',nome:'VAGA',anterior:58702},{luc:'L02/03.1',nome:'SANTO REMÉDIO',anterior:196887},
+    {luc:'L04.1',nome:'ENGENHO COZINHA FUNCIONAL',anterior:1380172},{luc:'L05.1',nome:'ADIDAS',anterior:162154},
+    {luc:'L06.07.1',nome:'SIMMONS',anterior:136491},{luc:'L08.1',nome:'RIACHUELO',anterior:9328333},
+    {luc:'L09.1',nome:'PICADILLY',anterior:149380},{luc:'L10.1',nome:'USAFLEX',anterior:51399},
+    {luc:'L11.1',nome:'CACAU SHOW',anterior:47394},{luc:'L12.1',nome:'ROMANEL',anterior:145263},
+    {luc:'L13.1',nome:'RENNER',anterior:10073667},{luc:'L14.1',nome:'SAPATINHO DE LUXO',anterior:14749},
+    {luc:'L15.1',nome:'MORANA',anterior:76270},{luc:'L16/17.1',nome:'INFO STORE',anterior:214505},
+    {luc:'L18.1',nome:'SAMSUNG',anterior:36706},{luc:'L19.1',nome:'O BOTICÁRIO',anterior:166844},
+    {luc:'L20/22.1',nome:'FUNFESTAS',anterior:356205},{luc:'L23/24.1',nome:'COMEPI',anterior:501881},
+    {luc:'L27/28.1',nome:'LABORATÓRIO SABIN',anterior:235433},{luc:'L36C.1',nome:'PRIME',anterior:70661},
+    {luc:'L37.1',nome:'CLÍNICA DOCTORS',anterior:125075},{luc:'L38.1',nome:'KASSARA NAIL',anterior:92506},
+    {luc:'L39.1',nome:'BEMOL / BEMOL FARMA',anterior:9509333},{luc:'L42.1',nome:'ENGLAND',anterior:113885},
+    {luc:'L43A46.1',nome:'EMPÓRIO RODRIGUES',anterior:3112718},{luc:'L47A50.1',nome:'SHOP DO PÉ',anterior:172273},
+    {luc:'L51.1',nome:'HAVAIANAS',anterior:108646},{luc:'L52.1',nome:'ARENITO',anterior:148976},
+    {luc:'L53.1',nome:'SANTA LOLLA',anterior:126093},{luc:'L54.1',nome:'RAÇA RUBRO NEGRA',anterior:119552},
+    {luc:'L55.1',nome:'CVC TURISMO',anterior:44348},{luc:'L56.1',nome:'AVATIM',anterior:21340},
+    {luc:'L60.1',nome:'STUDIO Z',anterior:464980},{luc:'L61.1',nome:'LUPO',anterior:71366},
+    {luc:'L62.1',nome:'MG SURF',anterior:42960},{luc:'L64.1',nome:'COLCHÕES ORTOBOM',anterior:81492},
+    {luc:'L65.1',nome:'FOTO NASCIMENTO',anterior:140585},{luc:'L68.1',nome:'NATURA',anterior:177678},
+    {luc:'L69/70.1',nome:'CLARO',anterior:230052},{luc:'L71.1',nome:'RAVANELLI',anterior:27850},
+    {luc:'L72.1',nome:'MELISSA',anterior:6946},{luc:'L73.1',nome:'BAGAGGIO',anterior:166474},
+    {luc:'L74.1',nome:'ÓTICA OFTALNORTE',anterior:74926},{luc:'L75.1',nome:'PRODMED',anterior:63500},
+    {luc:'L76.1',nome:'FIRST CLASS',anterior:78255},{luc:'L77/81/821',nome:'AMANDA BEAUTY CENTER',anterior:300706},
+    {luc:'L79/80.1',nome:'MILKYMOO',anterior:154294},{luc:'L83/84.1',nome:'HERING',anterior:51551},
+    {luc:'L85.1',nome:'SUBWAY',anterior:147852},{luc:'L85A.1',nome:'ROCK DREAMS',anterior:11046},
+    {luc:'L01/05.2',nome:'BROOKFIELD',anterior:112298},{luc:'L07.2',nome:'MONTREAL',anterior:643187},
+    {luc:'L08.2',nome:'ALL BAGS',anterior:93612},{luc:'L09/10.2',nome:'POBRE JUAN',anterior:1201924},
+    {luc:'L12A.2',nome:'SAN PAOLO',anterior:50357},{luc:'L16/17/182',nome:'IPLACE',anterior:270202},
+    {luc:'L24.2',nome:'M MARTAN',anterior:33647},{luc:'L25/26.2',nome:'COCO BAMBU',anterior:1009011},
+    {luc:'L27.2',nome:'DI DONNA',anterior:199101},{luc:'L28.2',nome:'OTICA AVENIDA',anterior:22939},
+    {luc:'L31B2/32.2',nome:'LASER COMPANY',anterior:18150},{luc:'L34.2',nome:'CAPODARTE',anterior:35973},
+    {luc:'L38/39.2',nome:'VIVARA',anterior:394345},{luc:'L40.2',nome:'VIA LASER',anterior:42836},
+    {luc:'L42.2',nome:'ÁGUA DE COCO',anterior:141767},{luc:'L43.2',nome:'ZINZANE',anterior:50584},
+    {luc:'L44.2',nome:'LANÇA PERFUME',anterior:293180},{luc:'L46.2',nome:'DRESS TO',anterior:82046},
+    {luc:'L47.2',nome:'TRACK & FIELD',anterior:62902},{luc:'L48.2',nome:'LIZ',anterior:54454},
+    {luc:'L52.2',nome:'ESPAÇO LASER',anterior:23929},{luc:'L53.2',nome:'SOBRANCELHAS DESIGN',anterior:32507},
+    {luc:'L54.2',nome:'LOUNGERIE',anterior:260300},{luc:'L55.2',nome:'AREZZO',anterior:228222},
+    {luc:'L56.2',nome:'BLEND MINEIRO',anterior:248389},{luc:'L57.2',nome:"TOP INTERNAC./L'OCCITANE",anterior:294615},
+    {luc:'L58.2',nome:'ARAMIS',anterior:62822},{luc:'C01.L3',nome:'SIDI SETOR 01',anterior:343728},
+    {luc:'L07.03',nome:'GIRAFFAS',anterior:764332},{luc:'L09.3',nome:'CINÉPOLIS',anterior:15576000},
+    {luc:'L10/11.3',nome:"MC DONALD'S",anterior:2543976},{luc:'L12.3',nome:'RISOTTO MIX',anterior:667010},
+    {luc:'L13.3',nome:'DI ROMANNI',anterior:184171},{luc:'L14.3',nome:'BOBS LOJA',anterior:389146},
+    {luc:'L16/17.3',nome:'BURGER KING',anterior:563739},{luc:'L19B.3',nome:'SPOLETO',anterior:136454},
+    {luc:'L21.3',nome:'PICANHA MANIA',anterior:491702},{luc:'L26.3',nome:'FRANS CAFÉ',anterior:63420},
+    {luc:'L30B-56.3',nome:'TOK & STOK',anterior:909034},{luc:'L35.3',nome:'IPOG 1',anterior:222021},
+    {luc:'L41.3',nome:'FÓRMULA ACADEMIA',anterior:239971},{luc:'L48/49.3',nome:'PLANETA IMAGINÁRIO',anterior:63037},
+    {luc:'L40.3',nome:'LOJAS AMERICANAS',anterior:358076},{luc:'QC01.1',nome:'QUIOSQUE BOBS',anterior:177678},
+    {luc:'QC9.L1',nome:'QUIOSQUE ARTE DI LATTE',anterior:109393},{luc:'QC20.L1',nome:'QUIOSQUE MC DONALDS',anterior:44385},
+    {luc:'QC01.G1',nome:'ECOLAVAGEM DRY SERVICE',anterior:80224},{luc:'QC03.G1',nome:'BOX CROSSFIT',anterior:155375},
+    {luc:'QC04.G1',nome:'LAVANDERIA OMO',anterior:67281},{luc:'ANTENA',nome:'AMERICAN TOWER',anterior:51691},
+    {luc:'MERCHAN 14',nome:'KUARA ENERGY',anterior:350292},{luc:'G1',nome:'TOK & STOK DEPÓSITO',anterior:262116},
+    {luc:'C108.L1',nome:'CIMO',anterior:77283}
+  ],
+  agua: [
+    {luc:'L01.1',nome:'VAGA',anterior:574.58},{luc:'L02/03.1',nome:'SANTO REMÉDIO',anterior:76.06},
+    {luc:'L04.1',nome:'CACHAÇARIA DO DEDÉ / ENGENHO',anterior:34988.2},{luc:'L05.1',nome:'ADIDAS',anterior:2.93},
+    {luc:'L08.1',nome:'RIACHUELO',anterior:5044.875},{luc:'L09.1',nome:'PICADILLY',anterior:2.545},
+    {luc:'L10.1',nome:'USAFLEX',anterior:9.658},{luc:'L11.1',nome:'CACAU SHOW',anterior:1980.691},
+    {luc:'L13.1',nome:'RENNER',anterior:3623},{luc:'L15.1',nome:'MORANA',anterior:2.81},
+    {luc:'L16/17.1',nome:'INFO STORE',anterior:7.142},{luc:'L27/28.1',nome:'LABORATÓRIO SABIN',anterior:445.93},
+    {luc:'L37.1',nome:'CLÍNICA DOCTORS',anterior:140.52},{luc:'L38.1',nome:'KASSARA NAIL',anterior:959.085},
+    {luc:'L39.1',nome:'BEMOL / BEMOL FARMA',anterior:7173},{luc:'L43A46.1',nome:'EMPÓRIO RODRIGUES (1)',anterior:10083.4},
+    {luc:'L43A46.1B',nome:'EMPÓRIO RODRIGUES (2)',anterior:8652.88},{luc:'L56.1',nome:'AVATIM',anterior:41.01},
+    {luc:'L68.1',nome:'NATURA',anterior:16.181},{luc:'L74.1',nome:'ÓTICA OFTALNORTE',anterior:168.44},
+    {luc:'L77/81/821',nome:'AMANDA BEAUTY CENTER',anterior:1399.16},{luc:'L79/80.1',nome:'MILKYMOO',anterior:967.2},
+    {luc:'L85.1',nome:'SUBWAY',anterior:3435.33},{luc:'C108.L1',nome:'CIMO',anterior:135.38},
+    {luc:'L09/10.2',nome:'POBRE JUAN',anterior:7919.12},{luc:'L12A.2',nome:'SAN PAOLO',anterior:418.98}
+  ],
+  gas: [
+    {luc:'L21.3',nome:'PICANHA MANIA',anterior:19387.15},
+    {luc:'L43A46.1',nome:'EMPÓRIO RODRIGUES',anterior:60324.572},
+    {luc:'L04.1',nome:'CACHAÇARIA DO DEDÉ / ENGENHO',anterior:7956.549},
+    {luc:'L16/17.3',nome:'BURGER KING',anterior:66913.051},
+    {luc:'L07.03',nome:'GIRAFFAS',anterior:10168.038},
+    {luc:'L09/10.2',nome:'POBRE JUAN',anterior:26179.514},
+    {luc:'L20.3',nome:'RAIZ COZINHA FUNCIONAL',anterior:13894.942},
+    {luc:'L25/26.2',nome:'COCO BAMBU',anterior:129304.94},
+    {luc:'L12.3',nome:'RISOTTO MIX',anterior:30009.244},
+    {luc:'L13.3',nome:'DI ROMANNI',anterior:21747.595}
+  ]
+};
 
-// ---- UI helpers ----
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  if (id === 'screen-resumo') renderResumo();
-}
+let insumoAtual='energia', resumoInsumo='energia';
+let leituras={energia:{},agua:{},gas:{}};
+let lojaAtual=null, filtroAtual='todas', buscaAtual='', fotoBlob=null, salvando=false;
 
-function toast(msg, dur = 2500) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), dur);
-}
+function formatarMes(ym){const[y,m]=ym.split('-');return['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(m,10)-1]+'/'+y;}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='screen-resumo')renderResumo();}
+function toast(msg,dur=2500){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),dur);}
+function setSyncStatus(e,msg){const d=document.getElementById('sync-dot');d.className='sync-dot'+(e==='saving'?' saving':e==='error'?' error':'');document.getElementById('sync-info').textContent=msg;}
 
-function setSyncStatus(estado, msg) {
-  const dot = document.getElementById('sync-dot');
-  dot.className = 'sync-dot' + (estado === 'saving' ? ' saving' : estado === 'error' ? ' error' : '');
-  document.getElementById('sync-info').textContent = msg;
-}
-
-// ---- Carregamento ----
-async function carregarLeituras() {
-  setSyncStatus('saving', 'Carregando...');
-  try {
-    const { data, error } = await db.from('leituras').select('*').eq('mes', MES_ATUAL);
-    if (error) throw error;
-    leituras = {};
-    (data || []).forEach(r => { leituras[r.luc] = r; });
-    const agora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    setSyncStatus('ok', 'Atualizado às ' + agora);
-  } catch (e) {
-    setSyncStatus('error', 'Erro ao conectar');
-    toast('Erro ao carregar dados. Verifique a conexão.');
-  }
+function mudarInsumo(ins){
+  insumoAtual=ins;
+  ['energia','agua','gas'].forEach(i=>{const t=document.getElementById('itab-'+i);t.className='insumo-tab'+(i===ins?' active-'+i:'');});
+  const pf=document.getElementById('progress-fill');pf.className='progress-fill fill-'+ins;
+  filtroAtual='todas';buscaAtual='';
+  document.querySelector('.search-box').value='';
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===0));
   renderLista();
 }
 
-// ---- Lista ----
-function renderLista() {
-  document.getElementById('mes-label').textContent = formatarMes(MES_ATUAL);
-  document.getElementById('resumo-mes').textContent = formatarMes(MES_ATUAL);
+async function carregarLeituras(){
+  setSyncStatus('saving','Carregando...');
+  try{
+    const{data,error}=await db.from('leituras').select('*').eq('mes',MES_ATUAL);
+    if(error)throw error;
+    leituras={energia:{},agua:{},gas:{}};
+    (data||[]).forEach(r=>{const ins=r.insumo||'energia';if(leituras[ins])leituras[ins][r.luc]=r;});
+    setSyncStatus('ok','Atualizado às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+  }catch(e){setSyncStatus('error','Erro ao conectar');toast('Erro ao carregar.');}
+  renderLista();
+}
 
-  const total = LOJAS.length;
-  const concluidas = Object.keys(leituras).length;
-  const pct = Math.round((concluidas / total) * 100);
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('progress-texto').textContent = concluidas + ' de ' + total + ' lojas';
-  document.getElementById('progress-pct').textContent = pct + '%';
-
-  const busca = buscaAtual.toLowerCase();
-  const filtradas = LOJAS.filter(l => {
-    const matchBusca = l.nome.toLowerCase().includes(busca) || l.luc.toLowerCase().includes(busca);
-    const d = leituras[l.luc];
-    const status = d ? (d.status === 'danificado' ? 'danificado' : 'concluida') : 'pendente';
-    const matchFiltro = filtroAtual === 'todas'
-      || (filtroAtual === 'pendentes' && status === 'pendente')
-      || (filtroAtual === 'concluidas' && status !== 'pendente');
-    return matchBusca && matchFiltro;
+function renderLista(){
+  document.getElementById('mes-label').textContent=formatarMes(MES_ATUAL);
+  document.getElementById('resumo-mes').textContent=formatarMes(MES_ATUAL);
+  const lojas=LOJAS[insumoAtual],leits=leituras[insumoAtual];
+  const concl=Object.keys(leits).length,pct=Math.round(concl/lojas.length*100);
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('progress-texto').textContent=concl+' de '+lojas.length+' medidores';
+  document.getElementById('progress-pct').textContent=pct+'%';
+  const busca=buscaAtual.toLowerCase();
+  const filtradas=lojas.filter(l=>{
+    const mb=l.nome.toLowerCase().includes(busca)||l.luc.toLowerCase().includes(busca);
+    const d=leits[l.luc],st=d?(d.status==='danificado'?'danificado':'concluida'):'pendente';
+    const mf=filtroAtual==='todas'||(filtroAtual==='pendentes'&&st==='pendente')||(filtroAtual==='concluidas'&&st!=='pendente');
+    return mb&&mf;
   });
-
-  const lista = document.getElementById('lista-lojas');
-  if (!filtradas.length) { lista.innerHTML = '<div class="empty">Nenhuma loja encontrada</div>'; return; }
-
-  lista.innerHTML = filtradas.map(l => {
-    const d = leituras[l.luc];
-    const danif = d?.status === 'danificado';
-    const ok = d && !danif;
-    const cls = danif ? 'danificada' : ok ? 'concluida' : 'pendente';
-    const hora = d?.updated_at ? new Date(d.updated_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
-    const sub = danif
-      ? 'Medidor danificado' + (hora ? ' · ' + hora : '')
-      : ok
-        ? d.consumo.toLocaleString('pt-BR') + ' kWh' + (d.coletado_por ? ' · ' + d.coletado_por : '') + (hora ? ' · ' + hora : '')
-        : 'Pendente';
-    const chip = danif
-      ? '<span class="status-chip chip-danif">Danif.</span>'
-      : ok
-        ? '<span class="status-chip chip-ok">OK</span>'
-        : '<span class="status-chip chip-pend">Pendente</span>';
-    return `<div class="loja-item ${cls}" onclick="abrirColeta('${l.luc}')">
-      <div class="loja-info">
-        <div class="loja-nome">${l.nome}</div>
-        <div class="loja-sub">${l.luc} · ${sub}</div>
-      </div>
-      ${chip}
-    </div>`;
+  const lista=document.getElementById('lista-lojas');
+  if(!filtradas.length){lista.innerHTML='<div class="empty">Nenhuma loja encontrada</div>';return;}
+  lista.innerHTML=filtradas.map(l=>{
+    const d=leits[l.luc],danif=d?.status==='danificado',ok=d&&!danif;
+    const cls=danif?'danificada':ok?'concluida':'pendente';
+    const hora=d?.updated_at?new Date(d.updated_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
+    const sub=danif?'Danificado'+(hora?' · '+hora:''):ok?(d.consumo||0).toLocaleString('pt-BR')+' '+UNIDADES[insumoAtual]+(d.coletado_por?' · '+d.coletado_por:'')+(hora?' · '+hora:''):'Pendente';
+    const chip=danif?'<span class="status-chip chip-danif">Danif.</span>':ok?'<span class="status-chip chip-ok">OK</span>':'<span class="status-chip chip-pend">Pend.</span>';
+    const lucEsc=l.luc.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return`<div class="loja-item ${cls}" onclick="abrirColeta('${lucEsc}','${insumoAtual}')"><div class="loja-info"><div class="loja-nome">${l.nome}</div><div class="loja-sub">${l.luc} · ${sub}</div></div>${chip}</div>`;
   }).join('');
 }
 
-function filtrar(f) {
-  filtroAtual = f;
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['todas','pendentes','concluidas'][i] === f));
-  renderLista();
-}
-function buscar(v) { buscaAtual = v; renderLista(); }
+function filtrar(f){filtroAtual=f;document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['todas','pendentes','concluidas'][i]===f));renderLista();}
+function buscar(v){buscaAtual=v;renderLista();}
 
-// ---- Coleta ----
-function abrirColeta(luc) {
-  const l = LOJAS.find(x => x.luc === luc);
-  if (!l) return;
-  lojaAtual = l;
-  fotoBlob = null;
-
-  document.getElementById('coleta-nome').textContent = l.nome;
-  document.getElementById('coleta-luc').textContent = l.luc;
-  document.getElementById('leitura-anterior').textContent = 'Leitura anterior: ' + l.anterior.toLocaleString('pt-BR') + ' kWh';
+function abrirColeta(luc,ins){
+  const l=LOJAS[ins].find(x=>x.luc===luc);if(!l)return;
+  lojaAtual={...l,insumo:ins};fotoBlob=null;
+  document.getElementById('coleta-nome').textContent=l.nome;
+  const badge=document.getElementById('coleta-badge');badge.textContent=l.luc;badge.className='luc-badge luc-'+ins;
+  document.getElementById('leitura-card').className='leitura-card card-'+ins;
+  document.getElementById('consumo-box').className='consumo-box cbox-'+ins;
+  document.getElementById('unit-label').textContent=UNIDADES[ins];
+  const bs=document.getElementById('btn-salvar');bs.className='btn btn-'+(ins==='energia'?'e':ins==='agua'?'a':'g');bs.textContent='Confirmar e salvar';
+  document.getElementById('leitura-anterior').textContent='Leitura anterior: '+l.anterior.toLocaleString('pt-BR')+' '+UNIDADES[ins];
   document.getElementById('consumo-box').classList.remove('show');
   document.getElementById('alerta-consumo').classList.remove('show');
   document.getElementById('ia-status').classList.remove('show');
-  document.getElementById('foto-placeholder').style.display = 'flex';
-  document.getElementById('foto-preview').style.display = 'none';
-  document.getElementById('foto-change-btn').style.display = 'none';
+  document.getElementById('foto-placeholder').style.display='flex';
+  document.getElementById('foto-preview').style.display='none';
+  document.getElementById('foto-change-btn').style.display='none';
   document.getElementById('foto-area').classList.remove('com-foto');
-
-  const salvo = leituras[luc];
-  document.getElementById('leitura-input').value = (salvo?.leitura_atual) || '';
-  document.getElementById('coletor-input').value = salvo?.coletado_por || '';
-  if (salvo?.foto_url) {
-    document.getElementById('foto-preview').src = salvo.foto_url;
-    document.getElementById('foto-preview').style.display = 'block';
-    document.getElementById('foto-placeholder').style.display = 'none';
-    document.getElementById('foto-change-btn').style.display = 'block';
-    document.getElementById('foto-area').classList.add('com-foto');
-  }
-  calcularConsumo();
-  showScreen('screen-coleta');
+  const salvo=leituras[ins][luc];
+  document.getElementById('leitura-input').value=salvo?.leitura_atual||'';
+  document.getElementById('coletor-input').value=salvo?.coletado_por||'';
+  if(salvo?.foto_url){document.getElementById('foto-preview').src=salvo.foto_url;document.getElementById('foto-preview').style.display='block';document.getElementById('foto-placeholder').style.display='none';document.getElementById('foto-change-btn').style.display='block';document.getElementById('foto-area').classList.add('com-foto');}
+  calcularConsumo();showScreen('screen-coleta');
 }
 
-function abrirCamera() {
-  document.getElementById('file-input').click();
-}
+function abrirCamera(){document.getElementById('file-input').click();}
 
-async function processarFoto(input) {
-  const file = input.files[0];
-  if (!file) return;
-  fotoBlob = file;
-
-  const url = URL.createObjectURL(file);
-  document.getElementById('foto-preview').src = url;
-  document.getElementById('foto-preview').style.display = 'block';
-  document.getElementById('foto-placeholder').style.display = 'none';
-  document.getElementById('foto-change-btn').style.display = 'block';
+async function processarFoto(input){
+  const file=input.files[0];if(!file)return;
+  fotoBlob=file;
+  document.getElementById('foto-preview').src=URL.createObjectURL(file);
+  document.getElementById('foto-preview').style.display='block';
+  document.getElementById('foto-placeholder').style.display='none';
+  document.getElementById('foto-change-btn').style.display='block';
   document.getElementById('foto-area').classList.add('com-foto');
-
-  // Leitura via IA (Supabase Edge Function ou direto na API Anthropic)
-  const iaStatus = document.getElementById('ia-status');
-  const iaMsg = document.getElementById('ia-msg');
-  iaStatus.classList.add('show');
-  iaMsg.textContent = 'Analisando imagem com IA...';
-
-  try {
-    const base64 = await fileToBase64(file);
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-api-key': 'SUA_CHAVE_ANTHROPIC_AQUI', 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 64,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: file.type, data: base64 } },
-            { type: 'text', text: 'Qual é a leitura numérica exibida neste medidor de energia/água/gás? Responda APENAS com o número, sem texto, sem unidade, sem pontuação. Se não conseguir identificar, responda 0.' }
-          ]
-        }]
-      })
-    });
-    const json = await resp.json();
-    const lido = parseInt((json.content?.[0]?.text || '0').replace(/\D/g,''), 10);
-    if (lido > 0) {
-      document.getElementById('leitura-input').value = lido;
-      iaMsg.textContent = 'Leitura identificada: ' + lido.toLocaleString('pt-BR');
-      calcularConsumo();
-      setTimeout(() => iaStatus.classList.remove('show'), 2500);
-    } else {
-      iaMsg.textContent = 'Não foi possível ler automaticamente — insira manualmente.';
-      setTimeout(() => iaStatus.classList.remove('show'), 3000);
-    }
-  } catch(e) {
-    iaMsg.textContent = 'IA indisponível — insira a leitura manualmente.';
-    setTimeout(() => iaStatus.classList.remove('show'), 2500);
-  }
+  const ia=document.getElementById('ia-status'),msg=document.getElementById('ia-msg');
+  ia.classList.add('show');msg.textContent='Analisando imagem com IA...';
+  try{
+    const b64=await new Promise((r,j)=>{const rd=new FileReader();rd.onload=()=>r(rd.result.split(',')[1]);rd.onerror=j;rd.readAsDataURL(file);});
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:64,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type,data:b64}},{type:'text',text:'Qual é a leitura numérica neste medidor? Responda APENAS com o número (decimais com ponto). Se não identificar, responda 0.'}]}]})});
+    const json=await resp.json();
+    const lido=parseFloat((json.content?.[0]?.text||'0').replace(/[^\d.]/g,''));
+    if(lido>0){document.getElementById('leitura-input').value=lido;msg.textContent='Leitura identificada: '+lido.toLocaleString('pt-BR');calcularConsumo();}
+    else msg.textContent='Não foi possível ler — insira manualmente.';
+  }catch(e){msg.textContent='IA indisponível — insira manualmente.';}
+  setTimeout(()=>ia.classList.remove('show'),2500);
 }
 
-function fileToBase64(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result.split(',')[1]);
-    r.onerror = rej;
-    r.readAsDataURL(file);
-  });
-}
-
-function calcularConsumo() {
-  if (!lojaAtual) return;
-  const val = parseFloat(document.getElementById('leitura-input').value);
-  const box = document.getElementById('consumo-box');
-  if (isNaN(val) || val === 0) { box.classList.remove('show'); return; }
-  const consumo = val - lojaAtual.anterior;
-  document.getElementById('consumo-val').textContent = consumo.toLocaleString('pt-BR') + ' kWh';
+function calcularConsumo(){
+  if(!lojaAtual)return;
+  const val=parseFloat(document.getElementById('leitura-input').value);
+  const box=document.getElementById('consumo-box');
+  if(isNaN(val)||val===0){box.classList.remove('show');return;}
+  document.getElementById('consumo-val').textContent=(val-lojaAtual.anterior).toLocaleString('pt-BR')+' '+UNIDADES[lojaAtual.insumo];
   box.classList.add('show');
-  document.getElementById('alerta-consumo').classList.toggle('show', consumo < 0 || consumo > lojaAtual.anterior * 0.05);
+  document.getElementById('alerta-consumo').classList.toggle('show',val<lojaAtual.anterior||val-lojaAtual.anterior>lojaAtual.anterior*0.08);
 }
 
-async function salvarLeitura() {
-  if (salvando) return;
-  const val = parseFloat(document.getElementById('leitura-input').value);
-  if (isNaN(val) || val <= 0) { toast('Digite a leitura ou tire uma foto.'); return; }
-
-  salvando = true;
-  document.getElementById('btn-salvar').textContent = 'Salvando...';
-  setSyncStatus('saving', 'Salvando...');
-
-  let foto_url = leituras[lojaAtual.luc]?.foto_url || null;
-
-  // Upload da foto se houver nova
-  if (fotoBlob) {
-    const ext = fotoBlob.name.split('.').pop() || 'jpg';
-    const path = MES_ATUAL + '/' + lojaAtual.luc.replace(/\//g, '-') + '_' + Date.now() + '.' + ext;
-    const { data: up, error: upErr } = await db.storage.from('fotos-medidores').upload(path, fotoBlob, { upsert: true });
-    if (!upErr) {
-      const { data: pub } = db.storage.from('fotos-medidores').getPublicUrl(path);
-      foto_url = pub.publicUrl;
-    }
+async function salvarLeitura(){
+  if(salvando)return;
+  const val=parseFloat(document.getElementById('leitura-input').value);
+  if(isNaN(val)||val<=0){toast('Digite a leitura ou tire uma foto.');return;}
+  salvando=true;document.getElementById('btn-salvar').textContent='Salvando...';setSyncStatus('saving','Salvando...');
+  let foto_url=leituras[lojaAtual.insumo][lojaAtual.luc]?.foto_url||null;
+  if(fotoBlob){
+    const ext=fotoBlob.name.split('.').pop()||'jpg';
+    const path=MES_ATUAL+'/'+lojaAtual.insumo+'/'+lojaAtual.luc.replace(/\//g,'-')+'_'+Date.now()+'.'+ext;
+    const{error:upErr}=await db.storage.from('fotos-medidores').upload(path,fotoBlob,{upsert:true});
+    if(!upErr){const{data:pub}=db.storage.from('fotos-medidores').getPublicUrl(path);foto_url=pub.publicUrl;}
   }
-
-  const coletor = document.getElementById('coletor-input').value.trim() || 'Equipe';
-  const payload = {
-    luc: lojaAtual.luc,
-    nome: lojaAtual.nome,
-    mes: MES_ATUAL,
-    leitura_anterior: lojaAtual.anterior,
-    leitura_atual: val,
-    consumo: val - lojaAtual.anterior,
-    status: 'ok',
-    foto_url,
-    coletado_por: coletor,
-  };
-
-  const { error } = await db.from('leituras').upsert(payload, { onConflict: 'luc,mes' });
-
-  salvando = false;
-  document.getElementById('btn-salvar').textContent = 'Confirmar e salvar';
-
-  if (error) {
-    setSyncStatus('error', 'Erro ao salvar');
-    toast('Erro ao salvar. Tente novamente.');
-    return;
-  }
-
-  leituras[lojaAtual.luc] = { ...payload, updated_at: new Date().toISOString() };
-  setSyncStatus('ok', 'Salvo agora');
-  toast('Leitura salva!');
-  voltarLista();
+  const coletor=document.getElementById('coletor-input').value.trim()||'Equipe';
+  const payload={luc:lojaAtual.luc,nome:lojaAtual.nome,mes:MES_ATUAL,insumo:lojaAtual.insumo,leitura_anterior:lojaAtual.anterior,leitura_atual:val,consumo:val-lojaAtual.anterior,status:'ok',foto_url,coletado_por:coletor};
+  const{error}=await db.from('leituras').upsert(payload,{onConflict:'luc,mes,insumo'});
+  salvando=false;document.getElementById('btn-salvar').textContent='Confirmar e salvar';
+  if(error){setSyncStatus('error','Erro');toast('Erro ao salvar.');return;}
+  leituras[lojaAtual.insumo][lojaAtual.luc]={...payload,updated_at:new Date().toISOString()};
+  setSyncStatus('ok','Salvo agora');toast('Leitura salva!');voltarLista();
 }
 
-async function marcarDanificado() {
-  if (salvando) return;
-  salvando = true;
-  setSyncStatus('saving', 'Salvando...');
-
-  const coletor = document.getElementById('coletor-input').value.trim() || 'Equipe';
-  const payload = {
-    luc: lojaAtual.luc,
-    nome: lojaAtual.nome,
-    mes: MES_ATUAL,
-    leitura_anterior: lojaAtual.anterior,
-    leitura_atual: null,
-    consumo: null,
-    status: 'danificado',
-    foto_url: null,
-    coletado_por: coletor,
-  };
-
-  const { error } = await db.from('leituras').upsert(payload, { onConflict: 'luc,mes' });
-  salvando = false;
-
-  if (error) { setSyncStatus('error', 'Erro'); toast('Erro ao salvar.'); return; }
-  leituras[lojaAtual.luc] = { ...payload, updated_at: new Date().toISOString() };
-  setSyncStatus('ok', 'Salvo agora');
-  toast('Marcado como danificado.');
-  voltarLista();
+async function marcarDanificado(){
+  if(salvando)return;salvando=true;setSyncStatus('saving','Salvando...');
+  const coletor=document.getElementById('coletor-input').value.trim()||'Equipe';
+  const payload={luc:lojaAtual.luc,nome:lojaAtual.nome,mes:MES_ATUAL,insumo:lojaAtual.insumo,leitura_anterior:lojaAtual.anterior,leitura_atual:null,consumo:null,status:'danificado',foto_url:null,coletado_por:coletor};
+  const{error}=await db.from('leituras').upsert(payload,{onConflict:'luc,mes,insumo'});
+  salvando=false;
+  if(error){setSyncStatus('error','Erro');toast('Erro ao salvar.');return;}
+  leituras[lojaAtual.insumo][lojaAtual.luc]={...payload,updated_at:new Date().toISOString()};
+  setSyncStatus('ok','Salvo');toast('Marcado como danificado.');voltarLista();
 }
 
-function voltarLista() {
-  renderLista();
-  showScreen('screen-lista');
+function voltarLista(){renderLista();showScreen('screen-lista');}
+
+function mudarResumoInsumo(ins){
+  resumoInsumo=ins;
+  document.querySelectorAll('.resumo-itab').forEach((t,i)=>t.classList.toggle('active',['energia','agua','gas'][i]===ins));
+  renderResumoInsumo();
 }
 
-// ---- Resumo ----
-function renderResumo() {
-  const ok = Object.values(leituras).filter(l => l.status === 'ok').length;
-  const danif = Object.values(leituras).filter(l => l.status === 'danificado').length;
-  document.getElementById('r-total').textContent = LOJAS.length;
-  document.getElementById('r-ok').textContent = ok;
-  document.getElementById('r-danif').textContent = danif;
+function renderResumo(){renderResumoInsumo();}
 
-  const itens = Object.entries(leituras);
-  const lista = document.getElementById('resumo-lista');
-  if (!itens.length) { lista.innerHTML = '<div class="empty">Nenhuma leitura coletada ainda.</div>'; return; }
-
-  lista.innerHTML = '<div class="resumo-list">' + itens.map(([luc, d]) =>
-    `<div class="resumo-row">
-      <span class="resumo-nome">${d.nome}</span>
-      <span class="resumo-val">${d.leitura_atual ? d.leitura_atual.toLocaleString('pt-BR') : '—'}</span>
-      <span class="resumo-consumo">${d.status === 'danificado' ? '⚠ danif.' : (d.consumo || 0).toLocaleString('pt-BR') + ' kWh'}</span>
-    </div>`
-  ).join('') + '</div>';
+function renderResumoInsumo(){
+  const lojas=LOJAS[resumoInsumo],leits=leituras[resumoInsumo];
+  const ok=Object.values(leits).filter(l=>l.status==='ok').length;
+  const danif=Object.values(leits).filter(l=>l.status==='danificado').length;
+  document.getElementById('r-total').textContent=lojas.length;
+  document.getElementById('r-ok').textContent=ok;
+  document.getElementById('r-danif').textContent=danif;
+  const itens=Object.entries(leits);
+  const lista=document.getElementById('resumo-lista');
+  if(!itens.length){lista.innerHTML='<div class="empty">Nenhuma leitura coletada ainda.</div>';return;}
+  lista.innerHTML='<div class="resumo-list">'+itens.map(([luc,d])=>`<div class="resumo-row"><span class="resumo-nome">${d.nome}</span><span class="resumo-val">${d.leitura_atual?Number(d.leitura_atual).toLocaleString('pt-BR'):'—'}</span><span class="resumo-consumo">${d.status==='danificado'?'⚠ danif.':(d.consumo||0).toLocaleString('pt-BR')+' '+UNIDADES[resumoInsumo]}</span></div>`).join('')+'</div>';
 }
 
-// ---- Exportar CSV ----
-function exportarCSV() {
-  const linhas = [['LUC','Loja','Leitura Anterior','Leitura Atual','Consumo','Status','Coletado por','Data/Hora']];
-  LOJAS.forEach(l => {
-    const d = leituras[l.luc];
-    const dt = d?.updated_at ? new Date(d.updated_at).toLocaleString('pt-BR') : '';
-    linhas.push([l.luc, l.nome, l.anterior, d?.leitura_atual ?? '', d?.consumo ?? '', d?.status ?? 'pendente', d?.coletado_por ?? '', dt]);
+function exportarCSV(){
+  const ins=resumoInsumo;
+  const linhas=[['Insumo','LUC','Loja','Leitura Anterior','Leitura Atual','Consumo','Unidade','Status','Coletado por','Data/Hora']];
+  LOJAS[ins].forEach(l=>{
+    const d=leituras[ins][l.luc];
+    linhas.push([ins,l.luc,l.nome,l.anterior,d?.leitura_atual??'',d?.consumo??'',UNIDADES[ins],d?.status??'pendente',d?.coletado_por??'',d?.updated_at?new Date(d.updated_at).toLocaleString('pt-BR'):'']);
   });
-  const csv = linhas.map(r => r.join(';')).join('\n');
-  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'leituras_' + MES_ATUAL + '.csv';
-  a.click();
+  const csv=linhas.map(r=>r.join(';')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));a.download='leituras_'+ins+'_'+MES_ATUAL+'.csv';a.click();
   toast('Arquivo exportado!');
 }
 
-// ---- Util ----
-function formatarMes(ym) {
-  const [y, m] = ym.split('-');
-  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  return meses[parseInt(m,10)-1] + '/' + y;
-}
-
-// ---- Init ----
 carregarLeituras();
 </script>
 </body>
