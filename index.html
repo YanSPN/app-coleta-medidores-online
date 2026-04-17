@@ -163,7 +163,13 @@
 <button class="fab" onclick="showScreen('screen-resumo')">&#9776;</button>
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
 <script>
+const supabase = supabase.createClient(
+  'https://gdiiyafpdufqtxxtahap.supabase.co',
+  'sb_publishable_o0DCHA9VzXZExEGXcNjM8w_63m5h72p'
+
 const LOJAS = [
   { luc: 'L01.1', nome: 'VAGA', anterior: 58702 },
   { luc: 'L02/03.1', nome: 'SANTO REMÉDIO', anterior: 196887 },
@@ -312,7 +318,17 @@ function calcularConsumo() {
   document.getElementById('alerta-consumo').classList.toggle('show', consumo < 0 || consumo > l.anterior * 0.03);
 }
 
-async function salvarLeitura() {
+async function salvarLeitura(supabase
+  .from('leituras')
+  .insert([
+    {
+      luc: l.luc,
+      nome: l.nome,
+      leitura: val,
+      consumo: val - l.anterior,
+      status: 'ok'
+    }
+  ]);) {
   const l = LOJAS[lojaAtual];
   const val = parseFloat(document.getElementById('leitura-input').value);
   if (isNaN(val) || val === 0) { mostrarToast('Digite ou fotografe a leitura primeiro.'); return; }
